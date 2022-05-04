@@ -38,7 +38,6 @@ enum Quantization {
 }
 
 # TODO: Implement debug preview
-# TODO: Add FrameTimer without owner to hide in scene
 # TODO: Implement 2D Rectangle (also in editor gizmo)
 # TODO: Implement RENDER_3D
 # TODO: Implement adding & reading arbitrary data
@@ -51,7 +50,7 @@ enum Quantization {
 
 export(int, 'Render 3D', 'Render 2D') var render_type = RENDER_3D
 export(RecordType) var record_type = RecordType.RECORD_PAST
-export var seconds = 60 setget set_seconds
+export var seconds = 6.28 setget set_seconds
 export(Framerate) var framerate = 4 setget set_framerate
 export(Quantization) var quantization = Quantization.UNIFORM
 export var debug_preview = false
@@ -61,22 +60,26 @@ var frame_amount = 0
 var frame_passed = 0
 var frames = []
 var exporter
+var frame_timer
 
 func _ready():
 	exporter = GIFExporter.new(size.x, size.y)
+	frame_timer = Timer.new()
+	add_child(frame_timer)
+
 	self.framerate = framerate
 	self.seconds = seconds
 
-	$FrameTimer.connect('timeout', self, 'capture')
+	frame_timer.connect('timeout', self, 'capture')
 
 	if autostart:
 		start()
 
 func start():
-	$FrameTimer.start()
+	frame_timer.start()
 
 func stop():
-	$FrameTimer.stop()
+	frame_timer.stop()
 
 func clear():
 	frames = []
@@ -146,7 +149,7 @@ func update_frame_amount():
 func set_framerate(_framerate):
 	framerate = _framerate
 	if is_inside_tree():
-		$FrameTimer.wait_time = 1.0 / (100.0 / framerate)
+		frame_timer.wait_time = 1.0 / (100.0 / framerate)
 	update_frame_amount()
 
 func set_seconds(_seconds):
