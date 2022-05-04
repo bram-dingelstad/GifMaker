@@ -55,6 +55,7 @@ export(Quantization) var quantization = Quantization.UNIFORM
 export var autostart = false
 
 export var preview = false
+export var preview_render = false
 export(NodePath) var preview_path
 onready var preview_node = get_node(preview_path)
 
@@ -109,7 +110,7 @@ func encode(in_thread = false):
 		exporter.add_frame(frame, framerate, quantization_method)
 		frames_done += 1
 
-		if preview:
+		if preview and preview_render:
 			var texture = ImageTexture.new()
 			texture.create_from_image(frame)
 			preview_node.texture = texture
