@@ -4,6 +4,9 @@ func _ready():
 	$GifRecorder.connect('encoding_progress', self, '_on_progress')
 	$GifRecorder.connect('done_encoding', self, '_on_done_encoding')
 	$Button.connect('pressed', self, '_on_pressed')
+
+	decode_file_if_it_exists()
+
 	$GifRecorder.start()
 
 	if $GifRecorder.record_type == $GifRecorder.RecordType.RECORD_PAST:
@@ -11,11 +14,27 @@ func _ready():
 		yield($GifRecorder, 'record_past_buffer_filled')
 		$Button.disabled = false
 
+func decode_file_if_it_exists():
+	var file = File.new()
+
+	if file.file_exists('res://test.gif'):
+		print('Found GIF! Reading metadata:')
+		for data in $GifDecoder.decode_file('res://test.gif'):
+			print(data)
+
 func _on_pressed():
-	$GifRecorder.render_to_file('res://test.gif')
+	var metadata = {
+		hello = 'world',
+		super_secret_save_location = Vector2.ONE * randf() * 10000,
+		some_node_path = NodePath('..')
+	}
+	$GifRecorder.render_to_file('res://test.gif', metadata)
 	$Button.disabled = true
 	yield($GifRecorder, 'done_encoding')
 	$Button.disabled = false
+
+	decode_file_if_it_exists()
+
 
 func _process(delta):
 	$FPS.text = '%d fps' % ceil(1 / delta) 

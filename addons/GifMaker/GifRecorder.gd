@@ -6,8 +6,8 @@ signal encoding_progress(percentage, frames_done)
 signal done_encoding
 
 const GIFExporter = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/exporter.gd')
-const MedianCutQuantization = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/median_cut.gd')
-const UniformQuantization = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/uniform.gd')
+const MedianCut = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/median_cut.gd')
+const Uniform = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/uniform.gd')
 
 enum { 
 	RENDER_3D, 
@@ -37,9 +37,7 @@ enum Quantization {
 	UNIFORM
 }
 
-# TODO: Implement 2D Rectangle (also in editor gizmo)
 # TODO: Implement RENDER_3D
-# TODO: Implement adding & reading arbitrary data
 # TODO: Re-write get_properties_list to fancify input
 # TODO: Custom node?
 # TODO: Perhaps find a way to render the viewport in editor
@@ -47,7 +45,7 @@ enum Quantization {
 # TODO: Record a lil' video with an example Godot project
 # TODO: Write known limitations / future improvements
 
-export(int, 'Render 3D', 'Render 2D') var render_type = RENDER_3D
+export(int, 'Render 3D', 'Render 2D') var render_type = RENDER_3D setget set_render_type
 export(RecordType) var record_type = RecordType.RECORD_PAST
 export var seconds = 6.28 setget set_seconds
 export(Framerate) var framerate = 4 setget set_framerate
@@ -66,12 +64,12 @@ var exporter
 var frame_timer
 
 func _ready():
-	exporter = GIFExporter.new(size.x, size.y)
 	frame_timer = Timer.new()
 	add_child(frame_timer)
 
 	self.framerate = framerate
 	self.seconds = seconds
+	self.render_type = render_type
 
 	frame_timer.connect('timeout', self, 'capture')
 
@@ -87,23 +85,27 @@ func stop():
 func clear():
 	frames = []
 
-func render():
+func render(metadata = null): 
 	stop()
+
+	exporter = GIFExporter.new(size.x, size.y)
 
 	if OS.can_use_threads():
 		var thread = Thread.new()
-		thread.start(self, 'encode', true)
+		thread.start(self, 'encode', metadata)
 		while thread.is_alive():
 			yield(get_tree(), 'idle_frame')
 
 		return thread.wait_to_finish()
 	else:
-		return encode()
+		return encode(metadata)
 
 
-func encode(in_thread = false):
-	var quantization_method = UniformQuantization if quantization == Quantization.UNIFORM else MedianCutQuantization
+func encode(metadata = null):
 	var frames_done = 0
+	var quantization_method = \
+			Uniform if quantization == Quantization.UNIFORM else MedianCut
+
 	for frame in frames:
 		emit_signal('encoding_progress', float(frames_done) / frames.size(), frames_done)
 		frame.convert(Image.FORMAT_RGBA8)
@@ -115,14 +117,17 @@ func encode(in_thread = false):
 			texture.create_from_image(frame)
 			preview_node.texture = texture
 
-	exporter.add_comment_ext('Made with GifMaker by Bram Dingelstad')
+	if metadata:
+		exporter.add_comment_ext('GIF_MAKER::' + var2str(metadata))
+
+	exporter.add_comment_ext('🙋 Made with GifMaker by Bram Dingelstad')
 
 	emit_signal('encoding_progress', 1.0, frames_done)
 	emit_signal('done_encoding')
 	return exporter.export_file_data()
 
-func render_to_file(file_path):
-	var buffer = render()
+func render_to_file(file_path, metadata = null):
+	var buffer = render(metadata)
 	if buffer is GDScriptFunctionState:
 		buffer = yield(buffer, 'completed')
 
@@ -140,7 +145,7 @@ func capture():
 			frame.create(size.x, size.y, false, screenshot.get_format())
 			frame.blit_rect(
 				screenshot,
-				Rect2(Vector2(512, 300) - size / 2, size),
+				Rect2(get_gif_rectangle().rect_position, size),
 				Vector2.ZERO
 			)
 			frames.append(frame)
@@ -156,6 +161,17 @@ func capture():
 		texture.create_from_image(frame)
 		preview_node.texture = texture
 
+func _process(delta):
+	match render_type:
+		RENDER_2D:
+			size = get_gif_rectangle().rect_size
+
+func get_gif_rectangle():
+	if is_inside_tree():
+		var group = get_tree().get_nodes_in_group('gif_rectangles')
+		if group.size() > 0:
+			return group[0]
+
 func update_frame_amount():
 	frame_amount = 100 / framerate * seconds
 
@@ -168,3 +184,13 @@ func set_framerate(_framerate):
 func set_seconds(_seconds):
 	seconds = _seconds
 	update_frame_amount()
+
+func set_render_type(_render_type):
+	render_type = _render_type
+
+	if is_inside_tree():
+		set_process(true)
+		match render_type:
+			RENDER_2D:
+				assert(get_gif_rectangle(), 'No GifRectangle detected')
+

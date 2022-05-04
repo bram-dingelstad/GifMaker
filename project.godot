@@ -9,13 +9,25 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Node",
+"class": "GifDecoder",
+"language": "GDScript",
+"path": "res://addons/GifMaker/GifDecoder.gd"
+}, {
 "base": "Viewport",
 "class": "GifRecorder",
 "language": "GDScript",
 "path": "res://addons/GifMaker/GifRecorder.gd"
+}, {
+"base": "ReferenceRect",
+"class": "GifRectangle",
+"language": "GDScript",
+"path": "res://addons/GifMaker/GifRectangle.gd"
 } ]
 _global_script_class_icons={
-"GifRecorder": "res://addons/GifMaker/gif.svg"
+"GifDecoder": "",
+"GifRecorder": "res://addons/GifMaker/gif.svg",
+"GifRectangle": "res://addons/GifMaker/GifRectangle.svg"
 }
 
 [application]
