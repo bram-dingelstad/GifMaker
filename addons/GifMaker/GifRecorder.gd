@@ -2,11 +2,12 @@ extends Viewport
 class_name GifRecorder, 'res://addons/GifMaker/gif.svg'
 
 signal record_past_buffer_filled
-signal encoding_progress(percentage)
+signal encoding_progress(percentage, frames_done)
 signal done_encoding
 
 const GIFExporter = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/exporter.gd')
 const MedianCutQuantization = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/median_cut.gd')
+const UniformQuantization = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/uniform.gd')
 
 enum { 
 	RENDER_3D, 
@@ -31,10 +32,14 @@ enum Framerate {
 	FPS_1 = 100
 }
 
+enum Quantization {
+	MEDIAN_CUT,
+	UNIFORM
+}
+
 # TODO: Implement debug preview
 # TODO: Add FrameTimer without owner to hide in scene
 # TODO: Implement 2D Rectangle (also in editor gizmo)
-# TODO: Implement different quantization
 # TODO: Implement RENDER_3D
 # TODO: Implement adding & reading arbitrary data
 # TODO: Re-write get_properties_list to fancify input
@@ -48,6 +53,7 @@ export(int, 'Render 3D', 'Render 2D') var render_type = RENDER_3D
 export(RecordType) var record_type = RecordType.RECORD_PAST
 export var seconds = 60 setget set_seconds
 export(Framerate) var framerate = 4 setget set_framerate
+export(Quantization) var quantization = Quantization.UNIFORM
 export var debug_preview = false
 export var autostart = false
 
@@ -90,16 +96,17 @@ func render():
 
 
 func encode(in_thread = false):
-	var frames_done = .0
+	var quantization_method = UniformQuantization if quantization == Quantization.UNIFORM else MedianCutQuantization
+	var frames_done = 0
 	for frame in frames:
-		emit_signal('encoding_progress', frames_done / frames.size())
+		emit_signal('encoding_progress', float(frames_done) / frames.size(), frames_done)
 		frame.convert(Image.FORMAT_RGBA8)
-		exporter.add_frame(frame, framerate, MedianCutQuantization)
+		exporter.add_frame(frame, framerate, quantization_method)
 		frames_done += 1
 
 	exporter.add_comment_ext('Made with GifMaker by Bram Dingelstad')
 
-	emit_signal('encoding_progress', 1)
+	emit_signal('encoding_progress', 1.0, frames_done)
 	emit_signal('done_encoding')
 	return exporter.export_file_data()
 

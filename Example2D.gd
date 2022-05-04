@@ -2,6 +2,7 @@ extends Control
 
 func _ready():
 	$GifRecorder.connect('encoding_progress', self, '_on_progress')
+	$GifRecorder.connect('done_encoding', self, '_on_done_encoding')
 	$Button.connect('pressed', self, '_on_pressed')
 	$GifRecorder.start()
 
@@ -24,12 +25,12 @@ func _process(delta):
 		fg_style.bg_color = color
 
 
-func _on_progress(percentage):
+func _on_progress(percentage, _frames_done):
 	if percentage == 0:
 		$ProgressBar.show()
 
 	$ProgressBar.value = percentage
 
-	if percentage == 1:
-		yield(get_tree().create_timer(1.0), 'timeout')
-		$ProgressBar.hide()
+func _on_done_encoding():
+	yield(get_tree().create_timer(1.0), 'timeout')
+	$ProgressBar.hide()

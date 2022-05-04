@@ -7,7 +7,7 @@ var time = .0
 func _draw():
 	for i in range(0, amount):
 		var color = Color.red
-		color.h = abs(sin(time + .1 * i)) 
+		color.h = sin(-time + .1 * i) * .5 + .5
 
 		var pos = Vector2(
 			sin(time + TAU / amount * i) * 40,
