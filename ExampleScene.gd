@@ -1,4 +1,6 @@
-extends Control
+extends Node
+
+var suzanne_material
 
 func _ready():
 	$GifRecorder.connect('encoding_progress', self, '_on_progress')
@@ -9,10 +11,26 @@ func _ready():
 
 	$GifRecorder.start()
 
+	if has_node('Suzanne'):
+		suzanne_material = SpatialMaterial.new()
+		# $Suzanne/Suzanne.set('material/0', suzanne_material)
+		$Tween.interpolate_property(
+			$Suzanne,
+			'rotation_degrees',
+			Vector3.ZERO,
+			Vector3(0, 360, 0),
+			3.0,
+			$Tween.TRANS_ELASTIC,
+			$Tween.EASE_IN_OUT
+		)
+		$Tween.repeat = true
+		$Tween.start()
+
 	if $GifRecorder.record_type == $GifRecorder.RecordType.RECORD_PAST:
 		$Button.disabled = true
 		yield($GifRecorder, 'record_past_buffer_filled')
 		$Button.disabled = false
+
 
 func decode_file_if_it_exists():
 	var file = File.new()
@@ -35,14 +53,17 @@ func _on_pressed():
 
 	decode_file_if_it_exists()
 
-
 func _process(delta):
 	$FPS.text = '%d fps' % ceil(1 / delta) 
+	var color = Color.red
+	color.h = abs(sin($ExampleAnimatedObject.time)) 
+
 	if $ProgressBar.visible:
-		var color = Color.red
-		color.h = abs(sin($ExampleAnimatedObject.time)) 
 		var fg_style = $ProgressBar.get('custom_styles/fg')
 		fg_style.bg_color = color
+
+	if has_node('Suzanne'):
+		suzanne_material.albedo_color = color
 
 func _on_progress(percentage, _frames_done):
 	if percentage == 0:

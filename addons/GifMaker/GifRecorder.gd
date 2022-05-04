@@ -37,7 +37,6 @@ enum Quantization {
 	UNIFORM
 }
 
-# TODO: Implement RENDER_3D
 # TODO: Re-write get_properties_list to fancify input
 # TODO: Custom node?
 # TODO: Perhaps find a way to render the viewport in editor
@@ -52,6 +51,9 @@ export(Framerate) var framerate = 4 setget set_framerate
 export(Quantization) var quantization = Quantization.UNIFORM
 export var autostart = false
 
+export(NodePath) var capture_node_path
+onready var capture_node = get_node(capture_node_path)
+
 export var preview = false
 export var preview_render = false
 export(NodePath) var preview_path
@@ -62,10 +64,13 @@ var frame_passed = 0
 var frames = []
 var exporter
 var frame_timer
+var thread
 
 func _ready():
 	frame_timer = Timer.new()
 	add_child(frame_timer)
+
+	assert(capture_node, 'No capture node detected, please add a Camera3D or GifRectangle to get started')
 
 	self.framerate = framerate
 	self.seconds = seconds
@@ -91,7 +96,7 @@ func render(metadata = null):
 	exporter = GIFExporter.new(size.x, size.y)
 
 	if OS.can_use_threads():
-		var thread = Thread.new()
+		thread = Thread.new()
 		thread.start(self, 'encode', metadata)
 		while thread.is_alive():
 			yield(get_tree(), 'idle_frame')
@@ -99,7 +104,6 @@ func render(metadata = null):
 		return thread.wait_to_finish()
 	else:
 		return encode(metadata)
-
 
 func encode(metadata = null):
 	var frames_done = 0
@@ -138,17 +142,23 @@ func render_to_file(file_path, metadata = null):
 
 func capture():
 	var frame = Image.new()
+	var screenshot
 	match render_type:
 		RENDER_2D:
-			var screenshot = get_tree().root.get_texture().get_data()
+			screenshot = get_tree().root.get_texture().get_data()
 			screenshot.flip_y()
-			frame.create(size.x, size.y, false, screenshot.get_format())
-			frame.blit_rect(
-				screenshot,
-				Rect2(get_gif_rectangle().rect_position, size),
-				Vector2.ZERO
-			)
-			frames.append(frame)
+		RENDER_3D:
+			screenshot = get_texture().get_data()
+			if not render_target_v_flip:
+				screenshot.flip_y()
+
+	frame.create(size.x, size.y, false, screenshot.get_format())
+	frame.blit_rect(
+		screenshot,
+		Rect2(capture_node.rect_position if render_type == RENDER_2D else Vector2.ZERO, size),
+		Vector2.ZERO
+	)
+	frames.append(frame)
 	
 	match record_type:
 		RecordType.RECORD_PAST:
@@ -164,13 +174,12 @@ func capture():
 func _process(delta):
 	match render_type:
 		RENDER_2D:
-			size = get_gif_rectangle().rect_size
+			size = capture_node.rect_size
 
-func get_gif_rectangle():
-	if is_inside_tree():
-		var group = get_tree().get_nodes_in_group('gif_rectangles')
-		if group.size() > 0:
-			return group[0]
+		RENDER_3D:
+			$Camera.transform = capture_node.transform
+			$Camera.fov = $Camera.fov
+			# TODO: Sync more properties like culling mask, projection, etc
 
 func update_frame_amount():
 	frame_amount = 100 / framerate * seconds
@@ -188,9 +197,9 @@ func set_seconds(_seconds):
 func set_render_type(_render_type):
 	render_type = _render_type
 
-	if is_inside_tree():
-		set_process(true)
-		match render_type:
-			RENDER_2D:
-				assert(get_gif_rectangle(), 'No GifRectangle detected')
-
+	match render_type:
+		RENDER_3D:
+			var shadow_capture_node = capture_node.duplicate()
+			shadow_capture_node.name = 'Camera'
+			shadow_capture_node.script = null
+			add_child(shadow_capture_node)

@@ -5,6 +5,7 @@ func decode_file(path):
 	var file = File.new()
 	file.open(path, File.READ)
 	var bytes = file.get_buffer(file.get_len())
+	file.close()
 
 	return decode_data(bytes)
 
