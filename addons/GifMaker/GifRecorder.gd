@@ -109,6 +109,11 @@ func encode(in_thread = false):
 		exporter.add_frame(frame, framerate, quantization_method)
 		frames_done += 1
 
+		if preview:
+			var texture = ImageTexture.new()
+			texture.create_from_image(frame)
+			preview_node.texture = texture
+
 	exporter.add_comment_ext('Made with GifMaker by Bram Dingelstad')
 
 	emit_signal('encoding_progress', 1.0, frames_done)
