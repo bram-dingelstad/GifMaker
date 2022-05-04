@@ -18,12 +18,12 @@ func _on_pressed():
 	$Button.disabled = false
 
 func _process(delta):
+	$FPS.text = '%d fps' % ceil(1 / delta) 
 	if $ProgressBar.visible:
 		var color = Color.red
 		color.h = abs(sin($ExampleAnimatedObject.time)) 
 		var fg_style = $ProgressBar.get('custom_styles/fg')
 		fg_style.bg_color = color
-
 
 func _on_progress(percentage, _frames_done):
 	if percentage == 0:
@@ -34,3 +34,4 @@ func _on_progress(percentage, _frames_done):
 func _on_done_encoding():
 	yield(get_tree().create_timer(1.0), 'timeout')
 	$ProgressBar.hide()
+	$GifRecorder.start()

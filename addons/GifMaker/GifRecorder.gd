@@ -37,7 +37,6 @@ enum Quantization {
 	UNIFORM
 }
 
-# TODO: Implement debug preview
 # TODO: Implement 2D Rectangle (also in editor gizmo)
 # TODO: Implement RENDER_3D
 # TODO: Implement adding & reading arbitrary data
@@ -53,8 +52,11 @@ export(RecordType) var record_type = RecordType.RECORD_PAST
 export var seconds = 6.28 setget set_seconds
 export(Framerate) var framerate = 4 setget set_framerate
 export(Quantization) var quantization = Quantization.UNIFORM
-export var debug_preview = false
 export var autostart = false
+
+export var preview = false
+export(NodePath) var preview_path
+onready var preview_node = get_node(preview_path)
 
 var frame_amount = 0
 var frame_passed = 0
@@ -124,11 +126,11 @@ func render_to_file(file_path):
 	file.close()
 
 func capture():
+	var frame = Image.new()
 	match render_type:
 		RENDER_2D:
 			var screenshot = get_tree().root.get_texture().get_data()
 			screenshot.flip_y()
-			var frame = Image.new()
 			frame.create(size.x, size.y, false, screenshot.get_format())
 			frame.blit_rect(
 				screenshot,
@@ -142,6 +144,11 @@ func capture():
 			while frames.size() > frame_amount:
 				frames.pop_front()
 				emit_signal('record_past_buffer_filled')
+
+	if preview:
+		var texture = ImageTexture.new()
+		texture.create_from_image(frame)
+		preview_node.texture = texture
 
 func update_frame_amount():
 	frame_amount = 100 / framerate * seconds
