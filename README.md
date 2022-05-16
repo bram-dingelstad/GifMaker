@@ -87,13 +87,13 @@ It has several properties that you can change either in-editor or using GDScript
 | [NodePath](https://docs.godotengine.org/en/stable/classes/class_nodepath.html)                 | preview_path      | `null`        |
 
 ### Methods
-| Return value         | Method name                                                                                                                                                                                                 |
-|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| void                 | start ( )                                                                                                                                                                                                   |
-| void                 | stop ( )                                                                                                                                                                                                    |
-| void                 | clear ( )                                                                                                                                                                                                   |
-| void                 | render ( [Dictionary](https://docs.godotengine.org/en/stable/classes/class_dictionary.html) metadata )                                                                                                      |
-| void                 | render_to_file ( [String](https://docs.godotengine.org/en/stable/classes/class_string.html) file_path, [Dictionary](https://docs.godotengine.org/en/stable/classes/class_dictionary.html) metadata = null ) |
+| Return value                                                                             | Method name                                                                                                                                                                                                 |
+|------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| void                                                                                     | start ( )                                                                                                                                                                                                   |
+| void                                                                                     | stop ( )                                                                                                                                                                                                    |
+| void                                                                                     | clear ( )                                                                                                                                                                                                   |
+| [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) | render ( [Dictionary](https://docs.godotengine.org/en/stable/classes/class_dictionary.html) metadata = null )                                                                                               |
+| void                                                                                     | render_to_file ( [String](https://docs.godotengine.org/en/stable/classes/class_string.html) file_path, [Dictionary](https://docs.godotengine.org/en/stable/classes/class_dictionary.html) metadata = null ) |
 
 ### Signals
 
@@ -137,7 +137,6 @@ It has several properties that you can change either in-editor or using GDScript
   |-------|------|
 
   `seconds` decides the frame buffer size by multiplying the amount by the value set in `framerate`. Only effective when using `RECORD_PAST` as the `record_type`.
-
 
 * [Framerate](#Framerate) framerate
   
@@ -190,4 +189,29 @@ It has several properties that you can change either in-editor or using GDScript
   |-------|------|
 
   The path to a `TextureRect` to preview the current frame or rendered frame by `GifRecorder`.
+
+
+### Method Descriptions
+
+* void **start** ( ) 
+
+ Starts the recording.
+
+* void **stop** ( ) 
+
+ Stops the recording.
+
+* void **clear** ( ) 
+
+ Clears the current record buffer. `clear()` isn't automatically called after `render` or `render_to_file`, so you could render the same GIF twice or record for longer.
+
+* [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) **render** ( [Dictionary](https://docs.godotengine.org/en/stable/classes/class_dictionary.html) metadata = null )
+
+ Stops and renders the current record buffer and returns a [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) with the GIF data.
+ Encodes `metadata` using [`var2str`](https://docs.godotengine.org/en/stable/classes/class_@gdscript.html#class-gdscript-method-var2str) in UTF8 to the comment section of the GIF file as per GIF89a specification.
+
+* void **render_to_file** ( [String](https://docs.godotengine.org/en/stable/classes/class_string.html) file_path, [Dictionary](https://docs.godotengine.org/en/stable/classes/class_dictionary.html) metadata = null )
+
+ Stops and renders the current record buffer and writes it to the file specified by `file_path`.
+ Encodes `metadata` using [`var2str`](https://docs.godotengine.org/en/stable/classes/class_@gdscript.html#class-gdscript-method-var2str) in UTF8 to the comment section of the GIF file as per GIF89a specification.
 
