@@ -99,8 +99,11 @@ func _input(event):
 Next up we play the game and do something for a while, then press `G`. The encoding might take a while since the GDScript implementation isn't too fast.
 As an exercise to you, you can try connecting the `encoding_progress` signal to print the progress of the encoding.
 
-You should end up with something like this:
+You should end up with something like this over at `res://test.gif`:  
 
+![A GIF generated from Godot](https://user-images.githubusercontent.com/3514405/168601841-c224df5b-9322-4147-9eb6-4f2d8906eff8.gif)
+
+Check out the rest of the documentation below to add metadata to the file or alter settings or `record_type`.
 
 # Documentation
 
