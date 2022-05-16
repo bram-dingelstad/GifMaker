@@ -36,7 +36,7 @@ There are few things that need to be ironed out
 - [ ] Documentation
     - [ ] GifDecoder
     - [ ] Enums
-    - [ ] Tutorial
+    - [x] Tutorial
 
 ## Getting Help
 
@@ -135,9 +135,9 @@ func _input(event):
 If the game crashes while encoding the GIF, [try enabling multi-threading](https://docs.godotengine.org/en/stable/tutorials/performance/threads/thread_safe_apis.html#rendering).
 This is a [Known Issue](#roadmap--known-issues) of the project and requires further investigation.
 
-You should get something like this:
+You should get something like this:  
 
-
+![3D Platformer GIF!](https://user-images.githubusercontent.com/3514405/168605973-a9f090c5-846e-4970-8030-cbfe4e5a7b76.gif)
 
 To making the encoding go faster, try lowering the resolution or framerate.
 
