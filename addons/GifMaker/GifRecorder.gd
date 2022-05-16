@@ -9,7 +9,7 @@ const GIFExporter = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexpo
 const MedianCut = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/median_cut.gd')
 const Uniform = preload('res://addons/GifMaker/godot-gdgifexporter/gdgifexporter/quantization/uniform.gd')
 
-enum { 
+enum RenderType { 
 	RENDER_3D, 
 	RENDER_2D
 }
@@ -44,10 +44,10 @@ enum Quantization {
 # TODO: Record a lil' video with an example Godot project
 # TODO: Write known limitations / future improvements
 
-export(int, 'Render 3D', 'Render 2D') var render_type = RENDER_3D setget set_render_type
+export(int, 'Render 3D', 'Render 2D') var render_type = RenderType.RENDER_3D setget set_render_type
 export(RecordType) var record_type = RecordType.RECORD_PAST
 export var seconds = 6.28 setget set_seconds
-export(Framerate) var framerate = 4 setget set_framerate
+export(Framerate) var framerate = Framerate.FPS_25 setget set_framerate
 export(Quantization) var quantization = Quantization.UNIFORM
 export var autostart = false
 
@@ -144,10 +144,10 @@ func capture():
 	var frame = Image.new()
 	var screenshot
 	match render_type:
-		RENDER_2D:
+		RenderType.RENDER_2D:
 			screenshot = get_tree().root.get_texture().get_data()
 			screenshot.flip_y()
-		RENDER_3D:
+		RenderType.RENDER_3D:
 			screenshot = get_texture().get_data()
 			if not render_target_v_flip:
 				screenshot.flip_y()
@@ -155,7 +155,7 @@ func capture():
 	frame.create(size.x, size.y, false, screenshot.get_format())
 	frame.blit_rect(
 		screenshot,
-		Rect2(capture_node.rect_position if render_type == RENDER_2D else Vector2.ZERO, size),
+		Rect2(capture_node.rect_position if render_type == RenderType.RENDER_2D else Vector2.ZERO, size),
 		Vector2.ZERO
 	)
 	frames.append(frame)
@@ -173,10 +173,10 @@ func capture():
 
 func _process(delta):
 	match render_type:
-		RENDER_2D:
+		RenderType.RENDER_2D:
 			size = capture_node.rect_size
 
-		RENDER_3D:
+		RenderType.RENDER_3D:
 			$Camera.transform = capture_node.transform
 			$Camera.fov = $Camera.fov
 			# TODO: Sync more properties like culling mask, projection, etc
@@ -198,7 +198,7 @@ func set_render_type(_render_type):
 	render_type = _render_type
 
 	match render_type:
-		RENDER_3D:
+		RenderType.RENDER_3D:
 			var shadow_capture_node = capture_node.duplicate()
 			shadow_capture_node.name = 'Camera'
 			shadow_capture_node.script = null
