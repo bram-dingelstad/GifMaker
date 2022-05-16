@@ -105,6 +105,42 @@ You should end up with something like this over at `res://test.gif`:
 
 Check out the rest of the documentation below to add metadata to the file or alter settings or `record_type`.
 
+## 3D Example
+
+For the 3D example we'll do everything the same as in the preceeding tutorial with some minor changes. We use the [3D platformer demo](https://godotengine.org/asset-library/asset/125) instead.
+Besides that, we'll keep using the default `render_type` of `RENDER_3D`. We also set the size of the `GifRecorder` to 256x256. Also, instead of adding a `GifRectangle` we just assign the main camera of the game found under the player.
+You can access this camera by right clicking the player in the main scene and enabling "`Editable children`".
+
+We add the same code to the `Player.gd` as before, with some minor tweaks to make it work in this new context:
+
+```
+func _input(event):
+	if event is InputEventKey \
+			and event.scancode == KEY_G \
+			and event.pressed:
+
+		var gif_recorder = get_tree().current_scene.get_node('GifRecorder')
+		
+		print('Encoding GIF')
+
+		gif_recorder.render_to_file('res://test.gif')
+		yield(gif_recorder, 'done_encoding')
+
+		print('Done encoding GIF!')
+
+		gif_recorder.clear()
+		gif_recorder.start()
+```
+
+If the game crashes while encoding the GIF, [try enabling multi-threading](https://docs.godotengine.org/en/stable/tutorials/performance/threads/thread_safe_apis.html#rendering).
+This is a [Known Issue](#roadmap--known-issues) of the project and requires further investigation.
+
+You should get something like this:
+
+
+
+To making the encoding go faster, try lowering the resolution or framerate.
+
 # Documentation
 
 ## `GifRecorder` 
