@@ -13,7 +13,7 @@ func _ready():
 
 	if has_node('Suzanne'):
 		suzanne_material = SpatialMaterial.new()
-		# $Suzanne/Suzanne.set('material/0', suzanne_material)
+		$Suzanne/Suzanne.set('material/0', suzanne_material)
 		$Tween.interpolate_property(
 			$Suzanne,
 			'rotation_degrees',
