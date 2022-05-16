@@ -10,8 +10,10 @@ GifMaker is maintained by [Bram Dingelstad](https://bram.dingelstad.works), if y
 
 ## Getting Started
 
-I'll write this later, stay tuned!
+It's easy to get started, download the addon whichever way you like and open the `Example2D.tscn` or `Example3D.tscn` scene to get a working example!
+Change some settings and checkout the effects, study the implementation in `ExampleScene.gd` to learn how to implement it in your own game.
 
+For a more deeper dive, I recommend reading the [Tutorial](#Tutorial).
 
 ### Download from AssetLib
 This is in the works! This section will be updated once this method is available
@@ -31,6 +33,10 @@ There are few things that need to be ironed out
 
 - [ ] Noticable artifacts when trying to record too many colors at once
 - [ ] Crashes when trying to record too many colors & preview at the same time [without enabling enabling multi-threading](https://docs.godotengine.org/en/stable/tutorials/performance/threads/thread_safe_apis.html#rendering)
+- [ ] Documentation
+    - [ ] GifDecoder
+    - [ ] Enums
+    - [ ] Tutorial
 
 ## Getting Help
 
@@ -48,7 +54,6 @@ GifMaker is available under the [MIT License](LICENSE.md). This means that you c
 
 GifMaker is based on [godot-gdgifexporter](https://github.com/jegor377/godot-gdgifexporter) project by Igor Santarek, ported from the implementation by Martin Novák over at the [godot-gifexpoter](https://github.com/novhack/godot-gifexporter) project.
 
-
 ## Help Me Make GifMaker!
 
 GifMaker needs your help to be as awesome as it can be! You don't have to be a coder to help out - I'd love to have your help in improving this documentation!
@@ -59,7 +64,43 @@ GifMaker needs your help to be as awesome as it can be! You don't have to be a c
 
 # Tutorial
 
-I'm writing tutorial later, stay tuned!
+For this tutorial we'll use an example Godot project that can be found through the Assetlib or through Github. 
+
+## 2D example
+
+I'll be using [2D Platformer (KinematicBody)](https://godotengine.org/asset-library/asset/120). 
+Download the addon outlined in [Getting Started](#getting-started) and put in in the `res://addons` folder in your project.
+
+Add a new node and through pressing the `+` button in your Scene explorer or by hitting `CMD/CTRL + A`. Type in `GifRecorder` and press enter.
+Setup the newly added node by setting `render_type` to `Render 2D` & `autostart` enabled. Next up, add another node: this time the `GifRectangle`.
+Set the dimensions and location of the `GifRectangle` to the center with a width and height of 256 pixels. 
+Set the `GifRecorder` size to the same dimensions to make the viewport warning go away. 
+When the game starts it will always automatically set the size to the size of the `GifRectangle`.
+Set the `capture_node_path` value in the inspector of `GifRecorder` to the newly added `GifRectangle`.
+
+Next up, we add some code to the `Game.gd` to start encoding the gif when we press `G`.
+```
+func _input(event):
+	if event is InputEventKey \
+			and event.scancode == KEY_G \
+			and event.pressed:
+		
+		print('Encoding GIF')
+
+		$GifRecorder.render_to_file('res://test.gif')
+		yield($GifRecorder, 'done_encoding')
+
+		print('Done encoding GIF!')
+
+		$GifRecorder.clear()
+		$GifRecorder.start()
+```
+
+Next up we play the game and do something for a while, then press `G`. The encoding might take a while since the GDScript implementation isn't too fast.
+As an exercise to you, you can try connecting the `encoding_progress` signal to print the progress of the encoding.
+
+You should end up with something like this:
+
 
 # Documentation
 
