@@ -44,9 +44,9 @@ There are several places to get help with GifMaker, and stay up to date with wha
 
 GifMaker is available under the [MIT License](LICENSE.md). This means that you can use it in any commercial or noncommercial project. The only requirement is that you need to include attribution in your game's docs. A credit would be very, very nice, too, but isn't required. If you'd like to know more about what this license lets you do, tldrlegal.com have a [very nice write up about the MIT license](https://tldrlegal.com/license/mit-license) that you might find useful.
 
-## Made by Bram Dingelstad, Igor Santarek ([jegor377](https://github.com/jegor377)) & Martin Novák ([novhack](https://github.com/novhack))
+## Made by Bram Dingelstad, Igor Santarek ([jegor377](https://github.com/jegor377)) & Martin Nov√°k ([novhack](https://github.com/novhack))
 
-GifMaker is based on [godot-gdgifexporter](https://github.com/jegor377/godot-gdgifexporter) project by Igor Santarek, ported from the implementation by Martin Novák over at the [godot-gifexpoter](https://github.com/novhack/godot-gifexporter) project.
+GifMaker is based on [godot-gdgifexporter](https://github.com/jegor377/godot-gdgifexporter) project by Igor Santarek, ported from the implementation by Martin Nov√°k over at the [godot-gifexpoter](https://github.com/novhack/godot-gifexporter) project.
 
 
 ## Help Me Make GifMaker!
