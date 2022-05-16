@@ -1,7 +1,7 @@
 <p align="center">
 <img style="height: 120px; object-fit: cover" src="https://user-images.githubusercontent.com/3514405/168532404-5716cf4b-2463-4279-ae17-a28ec50f61d9.svg" /> 
 <p align="center" style="font-style: italic"> A Godot node that records gameplay & turns it into an animated GIF!</p>
-<p align="center" style="font-style: italic"> <a href="README.md#Getting-Started">Getting Started</a> | <a href="README.md#Documentation">Documentation</a> | <a href="README.md#Tutorial">Tutorial</a> | <a href="https://twitter.com/bram_dingelstad">Twitter</a> | <a href="https://mastodon.gamedev.place/@bram_dingelstad">Mastodon</a> | <a href="https://ko-fi.com/bram_dingelstad">Ko-Fi</a> |</p>
+<p align="center" style="font-style: italic"> <a href="README.md#Getting-Started">Getting Started</a> | <a href="README.md#Documentation">Documentation</a> | <a href="README.md#Tutorial">Tutorial</a> | <a href="https://twitter.com/bram_dingelstad">Twitter</a> | <a href="https://mastodon.gamedev.place/@bram_dingelstad">Mastodon</a> | <a href="https://ko-fi.com/bram_dingelstad">Ko-Fi</a> </p>
 </p> 
 
 ---
@@ -75,11 +75,11 @@ It has several properties that you can change either in-editor or using GDScript
 ### Properties
 | Type                                                                                           | Property          | Default value |
 |------------------------------------------------------------------------------------------------|-------------------|---------------|
-| [RenderType]()                                                                                 | render_type       | `RENDER_3D`   |
-| [RecordType]()                                                                                 | record_type       | `RECORD_PAST` |
-| [int](https://docs.godotengine.org/en/stable/classes/class_bool.html)                          | seconds           | `6.28`        |
-| [Framerate]()                                                                                  | framerate         | `FPS_25`      |
-| [Quantization]()                                                                               | quantization      | `UNIFORM`     |
+| [RenderType](#RenderType)                                                                      | render_type       | `RENDER_3D`   |
+| [RecordType](#RecordType)                                                                      | record_type       | `RECORD_PAST` |
+| [float](https://docs.godotengine.org/en/stable/classes/class_float.html)                       | seconds           | `6.28`        |
+| [Framerate](#FrameRate)                                                                        | framerate         | `FPS_25`      |
+| [Quantization](#Quantization)                                                                  | quantization      | `UNIFORM`     |
 | [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html)                         | autostart         | `false`       |
 | [NodePath](https://docs.godotengine.org/en/stable/classes/class_nodepath.html)                 | capture_node_path | `null`        |
 | [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html)                         | preview           | `false`       |
@@ -108,3 +108,86 @@ It has several properties that you can change either in-editor or using GDScript
 * done_encoding ( ) 
 
   Emitted when a dialogue node is started. Has the node name as a parameter so you can see which node was started.
+
+### Property Descriptions
+* [RenderType](#RenderType) render_type
+  
+  |Default|`RENDER_3D`|
+  |-------|-----------|
+
+  The type of rendering you want to do. Either `RENDER_3D` (default) or `RENDER_2D`. Each requires a different setup with the capture node selected through `capture_node_path`.
+
+* [RecordType](#RecordType) record_type
+  
+  |Default|`RECORD_PAST`|
+  |-------|-------------|
+
+  The way you want to record the GIF. You have two options:
+
+  `RECORD_PAST` is always recording in the background using a fixed size buffer, meaning it will store a GIF with it's length controlled by the `seconds` property.
+  Any frames that are old when the buffer reaches it's size will be deleted causing the last few moments with a length of `second` are recorded.
+  When calling `render()` or `render_to_file()` the buffer gets rendered as a GIF.
+
+  `RECORD` is a manually operated recording mode that doesn't use a buffer of frames but allows the user to manually choose a beginning and end of a GIF.
+  This setting ignores any values set in `seconds` since it doesn't have a maximum size.
+
+* [float](https://docs.godotengine.org/en/stable/classes/class_float.html) seconds
+  
+  |Default|`6.28`|
+  |-------|------|
+
+  `seconds` decides the frame buffer size by multiplying the amount by the value set in `framerate`. Only effective when using `RECORD_PAST` as the `record_type`.
+
+
+* [Framerate](#Framerate) framerate
+  
+  |Default|`FPS_25`|
+  |-------|--------|
+
+  `framerate` is the rate at which frames are recorded and rendered for the final GIF. This value is done using a enum because of the GIF specification describing the framerate as an integer divided by 100.
+  In order to prevent confusion we use an enum that give a range of different framerates that are actually supported by the specification.
+
+* [Quantization](#Quantization) quantization
+  
+  |Default|`UNIFORM`|
+  |-------|---------|
+
+  Quantization is the way the colors in a frame of the GIF are being compressed. This is to circumvent the 256 color limitation.
+  `UNIFORM` bring a very GIF-esque effect where `MEDIAN_CUT` brings a more high quality GIF. If the frame has less or equal than 256 colors no quantization is used.
+
+* [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html) autostart 
+  
+  |Default|`false`|
+  |-------|-------|
+
+  When this value is set to `true` the node automatically calls `start()` when it's ready.
+
+* [NodePath](https://docs.godotengine.org/en/stable/classes/class_nodepath.html) capture_node_path
+  
+  |Default|`null`|
+  |-------|------|
+
+  The path to the render context specific recording node (`GifRectangle` for `RENDER_2D`, a `Camera` for `RENDER_3D`).
+
+* [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html) preview
+  
+  |Default|`false`|
+  |-------|-------|
+
+  A boolean that decides whether or not the `GifRecorder` shares preview frames with a `TextureRect` selected through `preview_path`.
+
+* [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html) preview_render
+  
+  |Default|`false`|
+  |-------|-------|
+
+  A boolean that decides whether or not the `GifRecorder` shares render frames with a `TextureRect` selected through `preview_path`.
+  This will show the current frame being rendered when set to `true`, you will no longer see the normal preview.
+
+* [NodePath](https://docs.godotengine.org/en/stable/classes/class_nodepath.html) capture_node_path
+  
+  |Default|`null`|
+  |-------|------|
+
+  The path to a `TextureRect` to preview the current frame or rendered frame by `GifRecorder`.
+
