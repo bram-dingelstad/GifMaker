@@ -38,11 +38,8 @@ enum Quantization {
 }
 
 # TODO: Re-write get_properties_list to fancify input
-# TODO: Custom node?
 # TODO: Perhaps find a way to render the viewport in editor
-# TODO: Write documentation README.md
 # TODO: Record a lil' video with an example Godot project
-# TODO: Write known limitations / future improvements
 
 export(int, 'Render 3D', 'Render 2D') var render_type = RenderType.RENDER_3D setget set_render_type
 export(RecordType) var record_type = RecordType.RECORD_PAST
@@ -172,6 +169,8 @@ func capture():
 		preview_node.texture = texture
 
 func _process(delta):
+	render_target_update_mode = UPDATE_DISABLED if render_type == RenderType.RENDER_2D else UPDATE_ALWAYS
+
 	match render_type:
 		RenderType.RENDER_2D:
 			size = capture_node.rect_size
@@ -179,6 +178,7 @@ func _process(delta):
 		RenderType.RENDER_3D:
 			$Camera.transform = capture_node.transform
 			$Camera.fov = $Camera.fov
+
 			# TODO: Sync more properties like culling mask, projection, etc
 
 func update_frame_amount():

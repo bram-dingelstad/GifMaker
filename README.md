@@ -34,7 +34,7 @@ There are few things that need to be ironed out
 - [ ] Noticable artifacts when trying to record too many colors at once
 - [ ] Crashes when trying to record too many colors & preview at the same time [without enabling enabling multi-threading](https://docs.godotengine.org/en/stable/tutorials/performance/threads/thread_safe_apis.html#rendering)
 - [ ] Documentation
-    - [ ] GifDecoder
+    - [x] GifDecoder
     - [ ] Enums
     - [x] Tutorial
 
@@ -295,3 +295,29 @@ It has several properties that you can change either in-editor or using GDScript
  Stops and renders the current record buffer and writes it to the file specified by `file_path`.
  Encodes `metadata` using [`var2str`](https://docs.godotengine.org/en/stable/classes/class_@gdscript.html#class-gdscript-method-var2str) in UTF8 to the comment section of the GIF file as per GIF89a specification.
 
+## `GifDecoder` 
+_Inherits from [Node](https://docs.godotengine.org/en/stable/classes/class_node.html)_
+
+Node for decoding metadata from recorded GIFs.
+
+### Description
+Once you've recorded a piece of gameplay with the `GifRecorder` and embedded some metadata you might want to read that data again.
+Think about storing save files using this method, or perhaps user generated content (maps, characters, etc).
+
+NOTE: Keep in mind that most image sharing services actually convert GIF formats and remove this metadata, so this won't work with randomly obtained GIFs / heavily modified GIFs.
+
+### Methods
+| Return value                                                             | Method name                                                                                                   |
+|--------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [Array](https://docs.godotengine.org/en/stable/classes/class_array.html) | decode_file( [String](https://docs.godotengine.org/en/stable/classes/class_string.html) path )                |
+| [Array](https://docs.godotengine.org/en/stable/classes/class_array.html) | decode_data( [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) bytes ) |
+
+### Method Descriptions
+
+* [Array](https://docs.godotengine.org/en/stable/classes/class_array.html) **decode_file** ( [String](https://docs.godotengine.org/en/stable/classes/class_string.html) path )
+
+Decode a previously encoded GIF stored at `path`. Returns an array with all of the stored information, will automatically instantiate data like `Vector2`'s when encoded with GifMaker.
+
+* [Array](https://docs.godotengine.org/en/stable/classes/class_array.html) **decode_decode** ( [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) bytes )
+
+Decode a encoded GIF stored in `buffer`. Returns an array with all of the stored information, will automatically instantiate data like `Vector2`'s when encoded with GifMaker.
