@@ -1,6 +1,6 @@
 [submodule "addons/GifMaker/godot-gdgifexporter"]
 	path = addons/GifMaker/godot-gdgifexporter
-	url = git@github.com:jegor377/godot-gdgifexporter.git
+	url = https://github.com/jegor377/godot-gdgifexporter.git
 [submodule "distro"]
 	path = distro
 	url = https://github.com/bram-dingelstad/godot-gifmaker
